@@ -35,20 +35,31 @@ export class Ab3CdkStack extends cdk.Stack {
       assumedBy: new iam.AccountRootPrincipal()
     });
 
+    const testcluster = new ecs.Cluster(this, 'octank-test-ecs-cluster', {
+      vpc: vpc,
+      containerInsights: true,
+    });
     const cluster = new ecs.Cluster(this, 'octank-ecs-cluster', {
       vpc: vpc,
       containerInsights: true,
     });
 
+    
+    const testlogging = new ecs.AwsLogDriver({
+      streamPrefix: "octank-test-ecs-logs"
+    });
     const logging = new ecs.AwsLogDriver({
       streamPrefix: "octank-ecs-logs"
     });
 
+    const testtaskRole = new iam.Role(this, `octank-test-ecs-taskRole-${this.stackName}`, {
+      roleName: `octank-test-ecs-taskRole-${this.stackName}`,
+      assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com')
+    });
     const taskRole = new iam.Role(this, `octank-ecs-taskRole-${this.stackName}`, {
       roleName: `octank-ecs-taskRole-${this.stackName}`,
       assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com')
     });
-
      // ***ECS Contructs***
 
      const executionRolePolicy =  new iam.PolicyStatement({
@@ -63,12 +74,24 @@ export class Ab3CdkStack extends cdk.Stack {
                 "logs:PutLogEvents"
             ]
     });
+    const testtaskDef = new ecs.FargateTaskDefinition(this, "octank-test-ecs-taskdef", {
+      taskRole: testtaskRole
+    });
 
     const taskDef = new ecs.FargateTaskDefinition(this, "octank-ecs-taskdef", {
       taskRole: taskRole
     });
-
+    
+    testtaskDef.addToExecutionRolePolicy(executionRolePolicy);
     taskDef.addToExecutionRolePolicy(executionRolePolicy);
+
+
+    const testcontainer = testtaskDef.addContainer('octank-app', {
+      image: ecs.ContainerImage.fromRegistry("nikunjv/flask-image:blue"),
+      memoryLimitMiB: 256,
+      cpu: 256,
+      logging
+    });
 
     const container = taskDef.addContainer('octank-app', {
       image: ecs.ContainerImage.fromRegistry("nikunjv/flask-image:blue"),
@@ -77,11 +100,22 @@ export class Ab3CdkStack extends cdk.Stack {
       logging
     });
 
+    testcontainer.addPortMappings({
+      containerPort: 5000,
+      protocol: ecs.Protocol.TCP
+    });
     container.addPortMappings({
       containerPort: 5000,
       protocol: ecs.Protocol.TCP
     });
 
+    const testfargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, "octank-test-ecs-service", {
+      cluster: testcluster,
+      taskDefinition: testtaskDef,
+      publicLoadBalancer: true,
+      desiredCount: 3,
+      listenerPort: 80
+    });
     const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, "octank-ecs-service", {
       cluster: cluster,
       taskDefinition: taskDef,
@@ -90,6 +124,12 @@ export class Ab3CdkStack extends cdk.Stack {
       listenerPort: 80
     });
 
+    const testscaling = testfargateService.service.autoScaleTaskCount({ maxCapacity: 6 });
+    testscaling.scaleOnCpuUtilization('octank-test-CpuScaling', {
+      targetUtilizationPercent: 10,
+      scaleInCooldown: cdk.Duration.seconds(60),
+      scaleOutCooldown: cdk.Duration.seconds(60)
+    });
     const scaling = fargateService.service.autoScaleTaskCount({ maxCapacity: 6 });
     scaling.scaleOnCpuUtilization('octank-CpuScaling', {
       targetUtilizationPercent: 10,
@@ -189,7 +229,11 @@ export class Ab3CdkStack extends cdk.Stack {
     const manualApprovalAction = new codepipeline_actions.ManualApprovalAction({
       actionName: 'Approve',
     });
-
+    const deploytotestAction = new codepipeline_actions.EcsDeployAction({
+      actionName: 'DeployAction',
+      service: testfargateService.service,
+      imageFile: new codepipeline.ArtifactPath(buildOutput, `imagedefinitions.json`)
+    });
     const deployAction = new codepipeline_actions.EcsDeployAction({
       actionName: 'DeployAction',
       service: fargateService.service,
@@ -209,6 +253,10 @@ export class Ab3CdkStack extends cdk.Stack {
         {
           stageName: 'Build',
           actions: [buildAction],
+        },
+        {
+          stageName: 'Deploy-to-Test-ECS',
+          actions: [deploytotestAction],
         },
         {
           stageName: 'Approve',
@@ -236,7 +284,7 @@ export class Ab3CdkStack extends cdk.Stack {
 
     //OUTPUT
 
+    new cdk.CfnOutput(this, 'TestLoadBalancerDNS', { value: testfargateService.loadBalancer.loadBalancerDnsName });
     new cdk.CfnOutput(this, 'LoadBalancerDNS', { value: fargateService.loadBalancer.loadBalancerDnsName });
-
   }
 }
