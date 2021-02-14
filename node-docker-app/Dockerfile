@@ -1,4 +1,4 @@
-FROM node:argon
+FROM node:14.4-alpine3.11
 # Create app directory
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
