@@ -179,7 +179,7 @@ export class Ab3CdkStack extends cdk.Stack {
           },
           build: {
             commands: [
-              'cd flask-docker-app',
+              'cd node-docker-app',
               `docker build -t $ECR_REPO_URI:$TAG .`,
               '$(aws ecr get-login --no-include-email)',
               'docker push $ECR_REPO_URI:$TAG'
