@@ -22,6 +22,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
+
+app.use
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
@@ -39,3 +42,14 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
+app.get('/', function (req, res) {
+  res.send('Hello World!');
+});
+
+var port = 5000;
+
+app.listen(port, function () {
+  console.log('Example app listening on port ' + port + '!');
+});
+
+  
