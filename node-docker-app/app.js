@@ -9,6 +9,15 @@ var usersRouter = require('./routes/users');
 
 var app = express();
 
+var mysql = require('mysql');
+var connection = mysql.createConnection({
+  host     : "ab3test.cw8kxh7es4kd.us-east-2.rds.amazonaws.com",
+  user     : "admin",
+  password : "admin123",
+  port     : 3306
+});
+
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
@@ -41,7 +50,20 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
+
+connection.connect(function(err) {
+  if (err) {
+    console.error('Database connection failed: ' + err.stack);
+    return;
+  }
+
+  console.log('Connected to database.');
+});
+
+
+
 module.exports = app;
+
 app.get('/', function (req, res) {
   res.send('Hello World!');
 });
