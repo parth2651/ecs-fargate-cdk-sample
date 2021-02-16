@@ -1,0 +1,23 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+    title Edit Book
+    link(rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css')
+  body.container(style='margin-top: 50px;')
+    if messages.error
+        .alert.alert-danger(role='alert') #{messages.error}
+    .card
+      .card-header
+        | Edit Book
+      .card-body
+        form(action='/books/update/'+id method='post')
+          .form-group
+            label Name:
+            input.form-control(type='text' name='name' value=name autocomplete='off')
+          .form-group
+            label Author:
+            input.form-control(type='text' name='author' value=author autocomplete='off')
+          .form-group
+            input.btn.btn-info(type='submit' value='Update')

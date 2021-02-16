@@ -1,0 +1,47 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='utf-8')
+    meta(name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no')
+    title Books
+    link(rel='stylesheet' href='https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css')
+  body.container(style='margin-top: 50px;')
+    if messages.success
+      .alert.alert-success(role='alert') #{messages.success}
+    if messages.error
+      .alert.alert-danger(role='alert') #{messages.error}
+    .card
+      .card-header
+        ul.nav.nav-pills.w-100
+          li.nav-pill.active
+            a.nav-link Books
+          li.nav-pill.ml-auto
+            a.nav-link.active(href='/books/add') Add Book
+      .card-body
+        if data.length
+          table.table
+            thead
+              tr
+                th(scope='col') Id
+                th(scope='col') Name
+                th(scope='col') Author
+                th(width='200px') Action
+            tbody
+              each dr in data
+                 tr
+                  th(scope='row') #{dr.id}
+                  td #{dr.name}
+                  td #{dr.author}
+                  td
+                    a.btn.btn-success.edit(href='../books/edit/'+dr.id) Edit
+                    a.btn.btn-danger.delete(onclick="return alert('Are You sure?')" href='../books/delete/'+dr.id) Delete
+              //for(var i = 0; i< data.length; i++) {}
+        // if result is empty
+        if !data.length
+          p.text-center No book found!
+        
+    //- p
+    //-   if data.length > 0
+    //-     p.text-center yes
+    //-   else
+    //-     p.text-center no
