@@ -6,12 +6,12 @@ var connection = mysql.createConnection({
 	database:'Ab3Test',
     port     : 3306
 });
-connection.connect(function(error){
-	if(!!error) {
-		console.log(error);
-	} else {
-		console.log('Connected..!');
-	}
-});
+// connection.connect(function(error){
+// 	if(!!error) {
+// 		console.log(error);
+// 	} else {
+// 		console.log('Connected..!');
+// 	}
+// });
 
 module.exports = connection;
