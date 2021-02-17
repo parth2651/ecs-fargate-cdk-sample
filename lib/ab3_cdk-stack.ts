@@ -71,7 +71,8 @@ export class Ab3CdkStack extends cdk.Stack {
                 "ecr:GetDownloadUrlForLayer",
                 "ecr:BatchGetImage",
                 "logs:CreateLogStream",
-                "logs:PutLogEvents"
+                "logs:PutLogEvents",
+                "rds-db:connect"
             ]
     });
     const testtaskDef = new ecs.FargateTaskDefinition(this, "octank-test-ecs-taskdef", {
