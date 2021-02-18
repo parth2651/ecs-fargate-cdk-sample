@@ -229,6 +229,9 @@ export class Ab3CdkStack extends cdk.Stack {
 
     const manualApprovalAction = new codepipeline_actions.ManualApprovalAction({
       actionName: 'Approve',
+      additionalInformation: 'Test deployment Comopleted',
+      externalEntityLink: testfargateService.loadBalancer.loadBalancerDnsName,
+      
     });
     const deploytotestAction = new codepipeline_actions.EcsDeployAction({
       actionName: 'DeployAction',
@@ -278,7 +281,8 @@ export class Ab3CdkStack extends cdk.Stack {
         "ecr:GetAuthorizationToken",
         "ecr:BatchCheckLayerAvailability",
         "ecr:BatchGetImage",
-        "ecr:GetDownloadUrlForLayer"
+        "ecr:GetDownloadUrlForLayer",
+        "rds-db:connect"
         ],
       resources: [`${cluster.clusterArn}`],
     }));
