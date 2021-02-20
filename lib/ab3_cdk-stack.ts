@@ -263,11 +263,11 @@ export class Ab3CdkStack extends cdk.Stack {
           actions: [deploytotestAction],
         },
         {
-          stageName: 'Approve',
+          stageName: 'Production-Deployment-Approval',
           actions: [manualApprovalAction],
         },
         {
-          stageName: 'Deploy-to-ECS',
+          stageName: 'Deploy-to-Production-ECS',
           actions: [deployAction],
         }
       ]
