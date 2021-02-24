@@ -35,19 +35,6 @@ export class Ab3CdkStack extends cdk.Stack {
       assumedBy: new iam.AccountRootPrincipal()
     });
 
-    
-
-    //#1  create Cluster
-    //#2  create logdriver
-    //#3  create a task role 
-    //#4  define execution policy 
-    //#5  Create Task Defination using task role(#3)
-    //#6  assign policy(#4) to task defination
-    //#7  add container to task defination 
-    //#8  add port mapping to container 
-    //#9  Add Service with application load balancer to cluster for specific task
-    //#10 Set up autoscalling for the service
-    
     const executionRolePolicy =  new iam.PolicyStatement({
       effect: iam.Effect.ALLOW,
       resources: ['*'],
@@ -61,8 +48,19 @@ export class Ab3CdkStack extends cdk.Stack {
                 "rds-db:connect"
             ]
     });
-
-
+    
+    //#0.0 create clusteradmin role and execution policy
+    //#1  create Cluster
+    //#2  create logdriver
+    //#3  create a task role  
+    //#4  Create Task Defination using task role(#3)
+    //#5  assign policy(#4) to task defination
+    //#6  add container to task defination 
+    //#7  add port mapping to container 
+    //#8  Add Service with application load balancer to cluster for specific task
+    //#9  Set up autoscalling for the service
+    
+    
     const testcluster = new ecs.Cluster(this, 'octank-test-ecs-cluster', {
       vpc: vpc,
       containerInsights: true,
@@ -84,7 +82,7 @@ export class Ab3CdkStack extends cdk.Stack {
     testtaskDef.addToExecutionRolePolicy(executionRolePolicy);
 
     const testcontainer = testtaskDef.addContainer('octank-app', {
-      image: ecs.ContainerImage.fromRegistry("nikunjv/flask-image:blue"),
+      image: ecs.ContainerImage.fromRegistry("857865625704.dkr.ecr.us-east-2.amazonaws.com/ocktankecrrepo0b297a3e-qxrvli4tcj3q:4ffe4ac7b91a94bc9fc7ae775e79a83b2f43cb14"),
       memoryLimitMiB: 256,
       cpu: 256,
       logging: testlogging
