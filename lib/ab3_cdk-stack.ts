@@ -62,6 +62,7 @@ export class Ab3CdkStack extends cdk.Stack {
     
     
     const testcluster = new ecs.Cluster(this, 'octank-test-ecs-cluster', {
+      clusterName: "octank-test-ecs-cluster",
       vpc: vpc,
       containerInsights: true,
     });
@@ -94,10 +95,11 @@ export class Ab3CdkStack extends cdk.Stack {
     });
 
     const testfargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, "octank-test-ecs-service", {
+      serviceName: "octank-test-ecs-service",
       cluster: testcluster,
       taskDefinition: testtaskDef,
       publicLoadBalancer: true,
-      desiredCount: 3,
+      desiredCount: 2,
       listenerPort: 80
     });
 
@@ -119,27 +121,28 @@ export class Ab3CdkStack extends cdk.Stack {
 
 
     const cluster = new ecs.Cluster(this, 'octank-ecs-cluster', {
+      clusterName:"octank-prod-ecs-cluster",
       vpc: vpc,
       containerInsights: true,
     });
 
     const logging = new ecs.AwsLogDriver({
-      streamPrefix: "octank-ecs-logs"
+      streamPrefix: "octank-prod-ecs-logs"
     });
     
-    const taskRole = new iam.Role(this, `octank-ecs-taskRole-${this.stackName}`, {
-      roleName: `octank-ecs-taskRole-${this.stackName}`,
+    const taskRole = new iam.Role(this, `octank-prod-ecs-taskRole-${this.stackName}`, {
+      roleName: `octank-prod-ecs-taskRole-${this.stackName}`,
       assumedBy: new iam.ServicePrincipal('ecs-tasks.amazonaws.com')
     }); 
 
-    const taskDef = new ecs.FargateTaskDefinition(this, "octank-ecs-taskdef", {
+    const taskDef = new ecs.FargateTaskDefinition(this, "octank-prod-ecs-taskdef", {
       taskRole: taskRole
     });
     
     taskDef.addToExecutionRolePolicy(executionRolePolicy);
 
     const container = taskDef.addContainer('octank-app', {
-      image: ecs.ContainerImage.fromRegistry("nikunjv/flask-image:blue"),
+      image: ecs.ContainerImage.fromRegistry("857865625704.dkr.ecr.us-east-2.amazonaws.com/ocktankecrrepo0b297a3e-qxrvli4tcj3q:4ffe4ac7b91a94bc9fc7ae775e79a83b2f43cb14"),
       memoryLimitMiB: 256,
       cpu: 256,
       logging: logging
@@ -152,7 +155,8 @@ export class Ab3CdkStack extends cdk.Stack {
     });
 
     
-    const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, "octank-ecs-service", {
+    const fargateService = new ecs_patterns.ApplicationLoadBalancedFargateService(this, "octank-prod-ecs-service", {
+      serviceName: "octank-prod-ecs-service",
       cluster: cluster,
       taskDefinition: taskDef,
       publicLoadBalancer: true,
@@ -162,7 +166,7 @@ export class Ab3CdkStack extends cdk.Stack {
 
     
     const scaling = fargateService.service.autoScaleTaskCount({ maxCapacity: 6 });
-    scaling.scaleOnCpuUtilization('octank-CpuScaling', {
+    scaling.scaleOnCpuUtilization('octank-prod-CpuScaling', {
       targetUtilizationPercent: 10,
       scaleInCooldown: cdk.Duration.seconds(60),
       scaleOutCooldown: cdk.Duration.seconds(60)
