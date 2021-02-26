@@ -110,17 +110,7 @@ export class Ab3CdkStack extends cdk.Stack {
       scaleOutCooldown: cdk.Duration.seconds(60)
     });
 
-
-
-
-
-
-
-
-
-
-
-    const cluster = new ecs.Cluster(this, 'octank-ecs-cluster', {
+    const cluster = new ecs.Cluster(this, 'octank-prod-ecs-cluster', {
       clusterName:"octank-prod-ecs-cluster",
       vpc: vpc,
       containerInsights: true,
@@ -215,6 +205,7 @@ export class Ab3CdkStack extends cdk.Stack {
           build: {
             commands: [
               'cd node-docker-app',
+              `docker login --username parth2651 --password 974307e3-e197-431f-9909-6cc896dc2169`,
               `docker build -t $ECR_REPO_URI:$TAG .`,
               '$(aws ecr get-login --no-include-email)',
               'docker push $ECR_REPO_URI:$TAG'
