@@ -103,6 +103,19 @@ export class Ab3CdkStack extends cdk.Stack {
       listenerPort: 80
     });
 
+    /*
+        ECS Pattern Includes 
+            VPC 
+            ECS Cluster 
+            ECS Task Definition 
+            AWS Fargate service
+            Amazon Cloud watch log
+            Load balancer 
+            Security Groups
+    */
+
+
+
     const testscaling = testfargateService.service.autoScaleTaskCount({ maxCapacity: 6 });
     testscaling.scaleOnCpuUtilization('octank-test-CpuScaling', {
       targetUtilizationPercent: 10,
@@ -252,17 +265,19 @@ export class Ab3CdkStack extends cdk.Stack {
       outputs: [buildOutput], // optional
     });
 
+    const deploytotestAction = new codepipeline_actions.EcsDeployAction({
+      actionName: 'DeployAction',
+      service: testfargateService.service,
+      imageFile: new codepipeline.ArtifactPath(buildOutput, `imagedefinitions.json`)
+    });
+
     const manualApprovalAction = new codepipeline_actions.ManualApprovalAction({
       actionName: 'Approve',
       additionalInformation: 'Test deployment Comopleted',
       externalEntityLink: testfargateService.loadBalancer.loadBalancerDnsName,
       
     });
-    const deploytotestAction = new codepipeline_actions.EcsDeployAction({
-      actionName: 'DeployAction',
-      service: testfargateService.service,
-      imageFile: new codepipeline.ArtifactPath(buildOutput, `imagedefinitions.json`)
-    });
+
     const deployAction = new codepipeline_actions.EcsDeployAction({
       actionName: 'DeployAction',
       service: fargateService.service,
