@@ -68,24 +68,6 @@ app.use(function(err, req, res, next) {
 });
 
 
-// connection.connect(function(err) {
-//   if (err) {
-//     console.error('Database connection failed: ' + err.stack);
-//     return;
-//   }
-
-//   console.log('Connected to database.');
-
-//   // connection.query("SELECT 1 + 1 AS solution", function (error, results, fields) {
-//   //   if (error) res.send(`Error: ${JSON.stringify(error)}`);
-//   //     res.send(`The solution is: ${results[0].solution}`);
-//   //   });
-    
-//     connection.end();
-// });
-
-
-
 module.exports = app;
 
 app.get('/', function (req, res) {
