@@ -6,4 +6,4 @@ Resources:
         TaskDefinition: <TASK_DEFINITION>
         LoadBalancerInfo:
           ContainerName: "octabk-app"
-          ContainerPort: 5000
+          ContainerPort: "5000"
